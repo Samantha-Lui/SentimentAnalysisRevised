@@ -1,11 +1,12 @@
 """
 This application performs a lexicon-based sentiment analysis on a set of tweets using
-a lexicon dictionary called AFFIN-111.
+a lexicon dictionary called AFFIN-111. The lexicon scores are on a scale of -5 to 5 with
+a great number indicating a more positive sentiment and vice versa.
 
 This script was written in Python 2.7. To run, enter at the console:
 python sentiment_analysis.py us-states.json yourOwnTweetFile.txt AFINN-111.txt.
 
-A sample result is provided in result.txt.
+A sample result is provided in Results.txt.
 """
 
 import multiprocessing as mp
@@ -40,7 +41,6 @@ hashtags = {}
 # keys: Sentiment lexicons involved in the tweets.
 # values: Indices in tweetsDF of which include sentiment lexicons.
 lexicons = {}
-
 
 ##
 # This group of functions loads and preprocesses the set of tweets for analysis.
@@ -249,12 +249,16 @@ def sentStat():
 	
 	Perform a statistic on the sentiment scores on the tweets 
 	and displays the result.
+	
+	@return the summary of the sentiment analysis.
+	@rtype string.
 	"""
 	tweetsDF['score'] = [sent_score(tweetsDF['content'][i],i) for i in range(len(tweetsDF))]
 	stat = pd.DataFrame(tweetsDF.groupby(['state']).agg(['count','mean','std']))
-	print "\n\n******** STATISTIC OF SENTIMENT SCORE BY STATE ********"
-	print stat
-	print "***********************************************************\n\n"
+	results = '\n\n******** STATISTIC OF SENTIMENT SCORE BY STATE ********\n'
+	results += str(stat)
+	results += '\n***********************************************************\n\n'
+	return  results
 
 def sent_score(text,i):
 	"""
@@ -362,26 +366,47 @@ def tweetLexicons(lex,i):
 		lexicons[lex].append(i)
 	else:
 		lexicons[lex] = [i]
-	
+	summary_file = open(sys.argv[3], "r")
 	
 ##
-# Summary on the hashtags found in the tweets.
+# Overall summary on the sentiment analysis.
 ##
+def summary(sent, tag, lex):
+	"""
+	Gather up the summaries for the sentiment scores,
+	hashtags and lexicons involved.
+
+	The summaries are written to 'Results.txt'.
+	
+	@param the sentiment score summary.
+	@type string.
+	@param the hashtag summary.
+	@type string.
+	@param the sentiment lexicon summary.
+	@type string.
+	"""
+	summary = open('Results.txt','w')
+	print >> summary, sent + tag + lex
+	summary.close()
+
 def tagReport():	
 	"""
 	Summarize the hashtags found in the tweets.
 	
 	Perform a statistic on the sentiment scores on the 
 	hashtags and display the sentiment lexicons associated with them.
+	
+	@return the summary of the hashtags found in the tweets.
+	@rtype string.
 	"""
 	tagDF = pd.DataFrame()
 	tagDF['tag'] = hashtags.keys()
 	tagDF['count'] = [len(hashtags[tag]) for tag in tagDF['tag']]
 	tagDF['mean'] = [np.mean(tweetsDF.score[hashtags[tag]]) for tag in tagDF['tag']]
 	tagDF['std'] = [np.std(tweetsDF.score[hashtags[tag]]) for tag in tagDF['tag']]
-	print '******** HASHTAG REPORT ********'
-	print tagDF
-	print '\n\n\n'
+	results = '******** HASHTAG REPORT ********\n'
+	results += str(tagDF)
+	results += '\n\n'
 	
 	# Create a reverse dictionary on the lexicons dictionary.
 	inv_lexicons = {}
@@ -393,30 +418,37 @@ def tagReport():
 				inv_lexicons[str(i)].append(key)
 	
 	# Display the sentiment lexicons(if any) associated with each hashtag.
+	results += 'The following shows the hashtags found in the tweets'
+	results += ' and their associated sentiment lexicons:\n'
+	results += 'Note: Some hashtags may not be associated with any lexicons in AFFINN-111.\n\n'
 	for tag in hashtags.keys():
-		print '-- ' + tag + ' --'
+		results += '-- ' + tag + ' --\n'
 		sentLexicons = []
 		for i in hashtags[tag]:
 			if str(i) in inv_lexicons.keys():
 				for lex in inv_lexicons[str(i)]:
 					sentLexicons.append(lex)
-		print sentLexicons
-		print '\n\n\n'
+		results += ', '.join(sentLexicons)
+		results += '\n\n'
 
-	print '***********************************************************\n\n'
+	results +=  '***********************************************************\n\n'
+	return results
 	
-
-##
-# Summary on the sentiment lexicons found in the tweets.
-##	
 def lexReport():
+	'''
+	Summarize the sentiment lexicons found in the tweets.
+	
+	@return the summary of the sentiment lexicons found in the tweets.
+	@rtype string.
+	'''
 	lexDF = pd.DataFrame()
 	lexDF['lexicon'] = lexicons.keys()
 	lexDF['count'] = [len(lexicons[lex]) for lex in lexDF['lexicon']]
-	print '******** SENTIMENT LEXICON REPORT ********'
-	print lexDF
-	print '\n\n\n'
-	print '***********************************************************\n\n'
+	results = '******** SENTIMENT LEXICON REPORT ********\n'
+	results += str(lexDF)
+	results +=  '\n\n'
+	results +=  '***********************************************************\n'
+	return results
 	
 	
 def main():
@@ -427,9 +459,7 @@ def main():
 	parseStates(state_file)
 	tidyTweets(tweet_file)
 	loadLexicons(sent_file)
-	sentStat()
-	tagReport()
-	lexReport()
+	summary(sentStat(), tagReport(), lexReport())
 	state_file.close()
 	tweet_file.close()
 	sent_file.close()
