@@ -1,140 +1,800 @@
 
 
 ******** STATISTIC OF SENTIMENT SCORE BY STATE ********
-       score                    
-       count      mean       std
-state                           
-az         1  0.000000       NaN
-ca        22  0.090909  2.201928
-co        24  0.125000  1.825246
-ia         3 -1.666667  1.527525
-id         1  2.000000       NaN
-il         5  1.000000  1.414214
-tx        12  0.750000  1.959824
-va         4  0.250000  0.500000
-wa         1  0.000000       NaN
+Note: Only states having at least one tweet involved in the analysis are displayed.
+              score                    
+              count      mean       std
+state                                  
+ak                4  1.250000  2.500000
+al                8 -0.375000  1.060660
+az               16 -0.125000  1.995829
+ca              418  0.306220  2.504099
+co              224  0.258929  2.893461
+fl               14  0.000000  0.554700
+ia               31  0.354839  2.443336
+id               31 -0.387097  1.960908
+il               41 -0.780488  3.546211
+or               12 -0.666667  3.366502
+pr                2 -1.500000  2.121320
+tx              130  0.146154  2.309775
+undetermined      6  1.000000  1.264911
+va               60  0.066667  2.246403
+vt                4 -1.000000  2.000000
+wa               18  1.277778  2.718251
+            score                      
+            count       mean        std
+count   16.000000  16.000000  16.000000
+mean    63.687500  -0.010854   2.217898
+std    111.103987   0.779554   0.783062
+min      2.000000  -1.500000   0.554700
+25%      7.500000  -0.456989   1.987099
+50%     17.000000   0.033333   2.278089
+75%     45.750000   0.318375   2.557637
+max    418.000000   1.277778   3.546211
 ***********************************************************
+
 
 ******** HASHTAG REPORT ********
-                        tag  count  mean  std
-0   wekenmanncrushwednesday      1     0    0
-1            insiderreports      1     0    0
-2                 breakfree      1     3    0
-3              shmoneydance      1     4    0
-4                      cool      1     0    0
-5                      weee      1     0    0
-6                    dinner      1     3    0
-7               visitphilly      1     0    0
-8                   solocam      1     0    0
-9                       rap      1     1    0
-10         visitbuckscounty      1     0    0
-11                 matthews      1     0    0
-12                  plusone      1     3    0
-13                   philly      1     1    0
-14                   sunset      1     0    0
-15              buckscounty      1     0    0
-16                   listen      1     1    0
+                              tag  count  mean      std
+0                         houston      1   0.0  0.00000
+1                         toonami      1   0.0  0.00000
+2                 msuvslouisville      1   2.0  0.00000
+3                        midnight      1   3.0  0.00000
+4                           epcot      1   0.0  0.00000
+5                         jaynina      1   0.0  0.00000
+6                          hiring      2   0.0  0.00000
+7                  humanresources      1   0.0  0.00000
+8                        kentucky      1   2.0  0.00000
+9                       earthhour      1  -1.0  0.00000
+10                        notdone      1   0.0  0.00000
+11                            nwo      1   1.0  0.00000
+12                       prom2k15      1   2.0  0.00000
+13                    worldchamps      1   7.0  0.00000
+14                   spartynation      1   2.0  0.00000
+15                stuckinourheads      1   2.0  0.00000
+16                huntingtonbeach      1   0.0  0.00000
+17                  makeembelieve      1   3.0  0.00000
+18                    surfcityusa      1   0.0  0.00000
+19                         phxcon      1  -1.0  0.00000
+20                         winner      1   0.0  0.00000
+21                       utahjazz      1   7.0  0.00000
+22                       wildcats      1   2.0  0.00000
+23                            ska      1   0.0  0.00000
+24                        mkehome      1   1.0  0.00000
+25                      skacovers      1   0.0  0.00000
+26                        excited      1   0.0  0.00000
+27                          texas      1   3.0  0.00000
+28                   someonegreat      1   0.0  0.00000
+29                        dessert      1   3.0  0.00000
+..                            ...    ...   ...      ...
+178                        comedy      1   0.0  0.00000
+179               justinandariana      2   0.0  0.00000
+180                    badgerbait      1   0.0  0.00000
+181                     elizabeth      1   0.0  0.00000
+182                           nil      1   0.0  0.00000
+183                    sacramento      1   0.0  0.00000
+184                           snl      5   1.4  1.74356
+185                africancarical      1   0.0  0.00000
+186                           ios      1   0.0  0.00000
+187                     dinosaurs      1   0.0  0.00000
+188                      brooklyn      1   0.0  0.00000
+189                   lettucegrow      1   0.0  0.00000
+190                        addict      1   0.0  0.00000
+191                       friends      2   1.0  1.00000
+192                           sfc      1   0.0  0.00000
+193              cultofdeathsquad      1   5.0  0.00000
+194                           wcw      1   1.0  0.00000
+195                           age      1   0.0  0.00000
+196                         proud      1   2.0  0.00000
+197                          nola      1   0.0  0.00000
+198                 wordsofwisdom      1   0.0  0.00000
+199                            sf      2   0.0  0.00000
+200                         sppcs      1   1.0  0.00000
+201                    svengoolie      1   0.0  0.00000
+202                   thorcaracal      1   0.0  0.00000
+203                      astrosst      1   0.0  0.00000
+204  epcotflowerandgardenfestival      1   0.0  0.00000
+205                   onwisconsin      1   3.0  0.00000
+206                  marchmadness      2   1.0  1.00000
+207                   tweetmyjobs      2   0.0  0.00000
 
-The following shows the hashtags found in the tweets and their associated sentiment lexicons:
+[208 rows x 4 columns]
+
+The following shows the hashtags found in the tweets, the associated sentiment lexicons, and their frequencies:
 Note: Some hashtags may not be associated with any lexicons in AFFINN-111.
 
--- wekenmanncrushwednesday --
+-- houston --
+{}
 
+-- toonami --
+{}
 
--- insiderreports --
+-- msuvslouisville --
+{'cheer': 1}
 
+-- midnight --
+{'love': 1}
 
--- breakfree --
-love
+-- epcot --
+{}
 
--- shmoneydance --
-like, favorite
+-- jaynina --
+{}
 
--- cool --
+-- hiring --
+{}
 
+-- humanresources --
+{}
 
--- weee --
+-- kentucky --
+{'notbig': 1, 'fan': 1}
 
+-- earthhour --
+{'no': 1}
 
--- dinner --
-celebrate
+-- notdone --
+{}
 
--- visitphilly --
+-- nwo --
+{'big': 1}
 
+-- prom2k15 --
+{'like': 1}
 
--- solocam --
+-- worldchamps --
+{'wish': 1, 'amazing': 1, 'ha': 1}
 
+-- spartynation --
+{'cheer': 1}
 
--- rap --
-praying
+-- stuckinourheads --
+{'win': 1, 'hard': 1, 'spamming': 1, 'want': 1}
 
--- visitbuckscounty --
+-- huntingtonbeach --
+{}
 
+-- makeembelieve --
+{'great': 1}
 
--- matthews --
+-- surfcityusa --
+{}
 
+-- phxcon --
+{'bitter': 1, 'want': 1}
 
--- plusone --
-celebrate
+-- winner --
+{}
 
--- philly --
-praying
+-- utahjazz --
+{'big': 1, 'love': 1, 'happy': 1}
 
--- sunset --
+-- wildcats --
+{'notbig': 1, 'fan': 1}
 
+-- ska --
+{}
 
--- buckscounty --
+-- mkehome --
+{'god': 1}
 
+-- skacovers --
+{}
 
--- listen --
-praying
+-- excited --
+{}
+
+-- texas --
+{'love': 1}
+
+-- someonegreat --
+{}
+
+-- dessert --
+{'perfect': 1}
+
+-- thecity --
+{}
+
+-- dc --
+{'want': 1}
+
+-- intelmaker --
+{}
+
+-- vegas --
+{'hero': 1, 'congrats': 2}
+
+-- facebook --
+{'bizarre': 1, 'victim': 1}
+
+-- hairflip --
+{}
+
+-- lcdsoundsystem --
+{}
+
+-- mybad --
+{'worse': 1}
+
+-- notdoneyet --
+{'proudly': 1}
+
+-- sanjose --
+{'advanced': 1}
+
+-- havingagoodtime --
+{'favorite': 1}
+
+-- crisp --
+{'perfect': 1}
+
+-- lost --
+{'cute': 1, 'glad': 1, 'happy': 1}
+
+-- pp15000102578 --
+{'block': 1}
+
+-- pwt --
+{'thank': 1}
+
+-- orlando --
+{}
+
+-- goodwitchmoments --
+{'love': 1, 'thanks': 1}
+
+-- autonomouscars --
+{}
+
+-- sculpturegarden --
+{}
+
+-- shots --
+{'like': 1}
+
+-- smimed --
+{'cool': 1}
+
+-- clothes --
+{}
+
+-- lfg --
+{}
+
+-- aurorapolice --
+{'bizarre': 1, 'victim': 1}
+
+-- selfiesaturday --
+{}
+
+-- theorphanqueen --
+{'murder': 1, 'like': 1}
+
+-- wwehof2015 --
+{'good': 1}
+
+-- thebay --
+{}
+
+-- amcmovienews --
+{}
+
+-- design --
+{}
+
+-- livetweetadventure --
+{}
+
+-- goodwitch --
+{'swear': 1, 'increased': 1}
+
+-- 1millionscans --
+{}
+
+-- retweet --
+{}
+
+-- cigars --
+{'like': 1}
+
+-- keepthedrinkscoming --
+{}
+
+-- vanderpumprules --
+{'amazing': 1}
+
+-- psychic --
+{}
+
+-- killingit --
+{}
+
+-- beckyg --
+{'win': 1, 'hard': 1, 'spamming': 1, 'want': 1}
+
+-- trndnl2015 --
+{}
+
+-- askmagcult --
+{}
+
+-- o2 --
+{'wish': 1, 'amazing': 1, 'ha': 1}
+
+-- separationanxiety --
+{'missed': 1, 'cried': 1}
+
+-- eternolive --
+{}
+
+-- hero --
+{}
+
+-- city --
+{'love': 1}
+
+-- newyork --
+{}
+
+-- cars --
+{}
+
+-- nena --
+{'true': 1, 'fame': 1, 'hope': 1}
+
+-- undefeatables --
+{'agree': 1}
+
+-- ballislife --
+{'hard': 1}
+
+-- job --
+{'advanced': 1}
+
+-- leadership --
+{}
+
+-- askbailee --
+{'love': 1, 'thanks': 1}
+
+-- french --
+{'perfect': 1}
+
+-- pdx911 --
+{'block': 1}
+
+-- finalfourbound --
+{'great': 1}
+
+-- milestones --
+{}
+
+-- sanfrancisco --
+{}
+
+-- bestroomieever --
+{'masterpiece': 1}
+
+-- nowplaying --
+{}
+
+-- country --
+{'like': 1}
+
+-- explore --
+{}
+
+-- bayarea --
+{}
+
+-- oipa --
+{'wish': 1, 'amazing': 1, 'ha': 1}
+
+-- flowerandgarden --
+{}
+
+-- snl40 --
+{}
+
+-- hospitality --
+{}
+
+-- finalfour --
+{'like': 1, 'sweet': 1, 'notbig': 1, 'tears': 1, 'fan': 1, 'god': 1, 'hopes': 1}
+
+-- pakistan --
+{'celebrates': 1}
+
+-- ultralive --
+{'fucking': 1, 'alone': 1, 'ill': 1, 'worth': 1, 'worry': 1}
+
+-- anaheimpackingdistrict --
+{'good': 2}
+
+-- drinkintonight --
+{'chance': 1}
+
+-- glitch --
+{}
+
+-- idgt --
+{'tired': 1}
+
+-- bbn --
+{'like': 2, 'wins': 1, 'pressure': 1, 'tears': 2, 'disappointed': 1, 'agree': 1}
+
+-- vfparkopssups --
+{}
+
+-- management --
+{}
+
+-- rockonsnl --
+{'good': 1}
+
+-- porchsitting --
+{'like': 1}
+
+-- scottsteiner --
+{'big': 1}
+
+-- mh17 --
+{'hoax': 1}
+
+-- livinglegend --
+{'fantastic': 1, 'congratulations': 1}
+
+-- wwehof --
+{}
+
+-- pcb2k15 --
+{}
+
+-- youwillbemissed --
+{'fantastic': 1, 'congratulations': 1}
+
+-- dreamsandvisions --
+{'tired': 1}
+
+-- sorryoldhabit --
+{}
+
+-- braniel --
+{'true': 1, 'fame': 1, 'hope': 1}
+
+-- sportsnews --
+{'celebrates': 1}
+
+-- businessmgmt --
+{'advanced': 1}
+
+-- astros --
+{}
+
+-- worldshowcase --
+{}
+
+-- chocolate --
+{'perfect': 1}
+
+-- kidschoiceawards --
+{}
+
+-- franchiseviagra --
+{}
+
+-- hazelnut --
+{'perfect': 1}
+
+-- wedding --
+{}
+
+-- round2 --
+{'drown': 1}
+
+-- godark --
+{'intense': 1}
+
+-- wwe --
+{'big': 1}
+
+-- jobs --
+{'advanced': 1}
+
+-- amcmovietalk --
+{}
+
+-- jurasicworld --
+{}
+
+-- thesco --
+{}
+
+-- indybound --
+{}
+
+-- thirsty13 --
+{'good': 2}
+
+-- goalsaf --
+{'love': 1}
+
+-- okcatuta --
+{'big': 1, 'love': 1, 'happy': 1}
+
+-- 5years --
+{'good': 2}
+
+-- trapqueen --
+{'worry': 1}
+
+-- seacon --
+{'bitter': 1, 'want': 1}
+
+-- nofilter --
+{}
+
+-- onix --
+{'wish': 1, 'amazing': 1, 'ha': 1}
+
+-- saturdaynightlive --
+{}
+
+-- citybythebay --
+{}
+
+-- teamheadsup --
+{}
+
+-- pursuitofperfection --
+{}
+
+-- micstandfail --
+{}
+
+-- backtheblackcaps --
+{}
+
+-- bffs --
+{'like': 1}
+
+-- spiritual --
+{}
+
+-- mexico --
+{'gross': 1, 'pretty': 1}
+
+-- tesla --
+{}
+
+-- prompics2015 --
+{'like': 1}
+
+-- sales --
+{}
+
+-- salty --
+{'ass': 1}
+
+-- stacysmom --
+{}
+
+-- loewscoronadobay --
+{'want': 1}
+
+-- justbeinghonest --
+{}
+
+-- rockicons --
+{'thank': 1}
+
+-- loslobos --
+{'natural': 1}
+
+-- information --
+{}
+
+-- onceadayuntilyourespond --
+{'love': 1}
+
+-- awkward --
+{}
+
+-- dallas --
+{'favorite': 1, 'love': 1}
+
+-- ncsu --
+{'hopes': 1, 'sweet': 1}
+
+-- themarina --
+{}
+
+-- boxing --
+{'help': 1}
+
+-- saturday --
+{}
+
+-- nyk --
+{}
+
+-- nz --
+{'celebrates': 1}
+
+-- babyiloveyourway --
+{}
+
+-- spaceshipearth --
+{}
+
+-- weareuk --
+{}
+
+-- party --
+{}
+
+-- caracal --
+{}
+
+-- comedy --
+{'refuse': 1, 'hope': 1}
+
+-- justinandariana --
+{}
+
+-- badgerbait --
+{}
+
+-- elizabeth --
+{}
+
+-- nil --
+{'murder': 1, 'like': 1}
+
+-- sacramento --
+{}
+
+-- snl --
+{'lmfao': 1, 'want': 1, 'lol': 1, 'no': 1}
+
+-- africancarical --
+{}
+
+-- ios --
+{}
+
+-- dinosaurs --
+{}
+
+-- brooklyn --
+{}
+
+-- lettucegrow --
+{}
+
+-- addict --
+{}
+
+-- friends --
+{'favorite': 1}
+
+-- sfc --
+{}
+
+-- cultofdeathsquad --
+{'proud': 1, 'super': 2, 'killing': 1}
+
+-- wcw --
+{'big': 1}
+
+-- age --
+{}
+
+-- proud --
+{'like': 1}
+
+-- nola --
+{}
+
+-- wordsofwisdom --
+{}
+
+-- sf --
+{}
+
+-- sppcs --
+{'want': 1}
+
+-- svengoolie --
+{}
+
+-- thorcaracal --
+{}
+
+-- astrosst --
+{}
+
+-- epcotflowerandgardenfestival --
+{}
+
+-- onwisconsin --
+{'great': 1}
+
+-- marchmadness --
+{'wins': 1, 'disappointed': 1}
+
+-- tweetmyjobs --
+{}
 
 ***********************************************************
 
+
 ******** SENTIMENT LEXICON REPORT ********
-        lexicon  count
-0          poor      1
-1         liked      1
-2          love      3
-3         tired      1
-4       fucking      2
-5           win      1
-6       awesome      1
-7          want      1
-8         anger      1
-9       praying      1
-10         miss      1
-11         best      1
-12         bold      1
-13      anxious      1
-14         hate      1
-15          top      1
-16        fight      1
-17      amazing      1
-18   interested      1
-19    celebrate      1
-20       pretty      1
-21        bored      1
-22       scared      1
-23          ass      1
-24        badly      1
-25  notstubborn      1
-26     obsessed      1
-27         haha      1
-28      killing      1
-29         warm      1
-30        alone      1
-31         suck      1
-32        super      1
-33         glad      1
-34        loved      1
-35         like      4
-36          god      1
-37     favorite      1
-38        leave      1
-39        swear      1
-40     stressed      1
-41        steal      1
+         lexicon  count
+0           cute      3
+1           help      4
+2          cried      1
+3           lack      1
+4      fantastic      2
+5       mistakes      1
+6         thanks     11
+7         victim      1
+8           hell      3
+9           fear      2
+10       darkest      1
+11          hate     18
+12        forget      2
+13       perfect      2
+14           cut      1
+15         thank     11
+16           fit      1
+17       nervous      1
+18          ruin      1
+19          dick      1
+20         crime      1
+21        better      8
+22         tears      2
+23      advanced      1
+24        pretty     10
+25         sweet      3
+26         smile      1
+27         sorry      2
+28      enjoying      1
+29         worth      1
+..           ...    ...
+240     bullying      1
+241        wrong      3
+242    important      2
+243          mad      5
+244  masterpiece      1
+245     pleasure      1
+246      jealous      2
+247         suck      2
+248      clearly      1
+249     pretends      1
+250       refuse      1
+251     supports      1
+252      natural      1
+253      madness      1
+254      selfish      1
+255         wins      1
+256        alarm      1
+257        proud      3
+258   appreciate      1
+259        scoop      1
+260        cheer      2
+261        drown      1
+262       murder      1
+263     greatest      1
+264          god      3
+265      furious      1
+266          fan      4
+267    notstrong      1
+268          wow      1
+269      dodging      1
+
+[270 rows x 2 columns]
 
 ***********************************************************
 
