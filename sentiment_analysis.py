@@ -19,31 +19,9 @@ from nltk.corpus import stopwords
 import string
 
 
-# A model of the states in the U.S. represented by a series of polygons.
-# keys: 2-letter abbreviations of the states in the U.S..
-# values: the set of vertices of the polygon in which the state inscribed.
-statesVertices = {}
-
-# The sentiment lexicons dictionary.
-# columns: sentiment lexicons, score, numWords.
-sentimentDF = pd.DataFrame()
-
-# The set of tweets that were from the U.S. and had nonempty text field.
-# columns: text(normalized), state, score
-tweetsDF = pd.DataFrame()
-
-# Hashtags included in the tweets.
-# keys: Hashtags included in the tweets.
-# values: Indices in tweetsDF of which include the hashtags.
-hashtags = {}
-
-# Sentiment lexicons involved in the tweets.
-# keys: Sentiment lexicons involved in the tweets.
-# values: Indices in tweetsDF of which include sentiment lexicons.
-lexicons = {}
-
 ##
 # This group of functions loads and preprocesses the set of tweets for analysis.
+# One of the features, the hashtags are also extracted during this phase.
 ##
 def parseStates(stream):    
 	"""
@@ -56,13 +34,15 @@ def parseStates(stream):
 	@param the stream connecting a file containing the pertinent data.
 	@type file input stream.
 	"""
+	statesVertices = {}
 	states = stream.read()
 	statesJ = json.loads(states)
 	for i in range(len(statesJ['features'])):
 		statesVertices[statesJ['features'][i]["properties"]["state"]] = \
 		statesJ['features'][i]["geometry"]["coordinates"][0][0]
-				
-def tidyTweets(stream):
+	return statesVertices
+
+def tidyTweets(stream,ns,tweetsDF):
 	"""
 	Crop the tweets which come from U.S. and have content in the text. 
 
@@ -74,6 +54,10 @@ def tidyTweets(stream):
 	
 	@param the stream connecting a file containing the tweets.
 	@type file input stream.
+	@param the namespace to which the processes access the shared data.
+	@type namespace.
+	@param the holder of the tweets to be analyzed.
+	@type Data Frame.
 	"""
 	rawTweets = stream.readlines() 
 	rawTweets = filter(isTargetTweet, rawTweets)
@@ -81,21 +65,24 @@ def tidyTweets(stream):
 	# Extract data from the tweets.
 	pool = mp.Pool(processes=4)
 	data = [pool.apply(getData, args=(t,)) for t in rawTweets]
-	# The normalized text content.
+	# The normalized text contents.
 	tweetsDF['content'] = [d[0] for d in data]
-	# The right side of the equation determines the state in which the tweet came from.
-	tweetsDF['state'] = [inState(c) for c in [center(bb) for bb in [d[1] for d in data]]]
+	# Determine the states in which the tweets came from.
+	centers = [pool.apply(center, args=(d[1],)) for d in data]
+	tweetsDF['state'] = [pool.apply(inState, args=(ns,c,)) for c in centers]
 	# The hashtags included in the tweet.
 	htags = [d[2] for d in data]
 
 	# Record the hashtags and the indices of their originated tweets.
+	hashtags = {}
 	for i in range(len(htags)):
 		if len(htags[i])>0:
 			for ht in htags[i]:
 				if not ht in hashtags.keys():
 					hashtags[ht] = [i]
 				else:
-					hashtags[ht].append(i)	
+					hashtags[ht].append(i)
+	ns.hashtags = hashtags
 	
 def isTargetTweet(twt):
 	"""
@@ -113,8 +100,8 @@ def isTargetTweet(twt):
 	if 'text' in tweet.keys() and 'place' in tweet.keys() and \
         not tweet['place'] == None and tweet['place'] ['country_code'] == 'US':
 		return True
-	return False
-	
+	return False				
+					
 def getData(twt):
 	"""
 	Extract data from the specific tweet.
@@ -140,8 +127,8 @@ def getData(twt):
 		for htag in htags:
 			ht = htag['text'].encode('utf-8')
 			hashtags.append(ht.lower())
-	return (text,coords,hashtags)
-		
+	return (text,coords,hashtags)				
+					
 def normalize(txt):
 	"""
 	Normalize the text content of a tweet.
@@ -165,37 +152,6 @@ def normalize(txt):
 	# Remove stopwords and decapitalize the remaining words.
 	text = ' '.join([word.lower() for word in text.split() if word not in myStopwords])
 	return text
-	
-def inState(pt):
-	"""
-	Determine which state the specified point locates.
-
-	@param the coordinates of the center of the bounding box 
-	       of the tweet's location.
-	@type list
-	@return the two-letter abbreviation of the state in which the 
-	specified point locates if a state is detected and `undetermined`
-	otherwise.
-	@rtype string
-	"""
-	x = pt[0]
-	y = pt[1]
-
-	for key in statesVertices.keys():
-		xcoords = [] # List of x-coordinates of the vertices
-		ycoords= [] # List of y-coordinates of the vertices
-		for vertex in statesVertices[key]:
-			xcoords.append(vertex[0])
-			ycoords.append(vertex[1])
-		n = len(xcoords)
-		l = n-1
-		for k in range(n):
-			if ycoords[k]<y and ycoords[l]>=y or ycoords[l]<y and ycoords[k]>=y:
-				z = xcoords[k] + (y-ycoords[k])*(xcoords[l]-xcoords[k])/(ycoords[l]-ycoords[l]-ycoords[k])
-				if z < x:
-					return key
-			l=k   
-	return 'undetermined'
 
 def center(pts):
 	"""
@@ -217,10 +173,45 @@ def center(pts):
 	x2 = p2[0]
 	y2 = p2[1]   
 	return [(x1+x2)/2, (y1+y2)/2] 
+
+def inState(ns, pt):
+	"""
+	Determine which state the specified point locates.
+
+	@param the namespace to which the processes access for the shared data.
+	@type namespace.
+	@param the coordinates of the center of the bounding box 
+	       of the tweet's location.
+	@type list
+	@return the two-letter abbreviation of the state in which the 
+	specified point locates if a state is detected and `undetermined`
+	otherwise.
+	@rtype string
+	"""
+	x = pt[0]
+	y = pt[1]
+
+	for key in ns.statesVertices.keys():
+		xcoords = [] # List of x-coordinates of the vertices
+		ycoords= [] # List of y-coordinates of the vertices
+		for vertex in ns.statesVertices[key]:
+			xcoords.append(vertex[0])
+			ycoords.append(vertex[1])
+		n = len(xcoords)
+		l = n-1
+		for k in range(n):
+			if ycoords[k]<y and ycoords[l]>=y or ycoords[l]<y and ycoords[k]>=y:
+				z = xcoords[k] + (y-ycoords[k])*(xcoords[l]-xcoords[k])/(ycoords[l]-ycoords[l]-ycoords[k])
+				if z < x:
+					return key
+			l=k   
+	return 'undetermined'
 	
+
 	
 ##
-# This group of functions performs the sentiment analysis on the preprocessed dataset.
+# This group of functions extracts the rest of the features and performs the sentiment 
+# analysis.
 ##
 def loadLexicons(stream):
 	"""
@@ -231,6 +222,8 @@ def loadLexicons(stream):
 	
 	@param the stream connecting to the sentiment lexicon file.
 	@type file input stream
+	@return the sentiment data frame.
+	@rtype Data Frame.
 	"""
 	sfile = stream.readlines()
 	terms = []
@@ -239,28 +232,36 @@ def loadLexicons(stream):
 		term, score  = line.split("\t")
 		terms.append(str(term))
 		scores.append(int(score))
+	sentimentDF = pd.DataFrame()
 	sentimentDF['term'] = terms
 	sentimentDF['score'] = scores
 	sentimentDF['numWords'] =  sentimentDF["term"].apply(lambda x: x.count(" ") + 1)
-
-def sentStat():
+	return sentimentDF
+	
+def sentStat(ns,tweetsDF):
 	"""
 	Summarize the sentiment analysis.
 	
 	Perform a statistic on the sentiment scores on the tweets 
 	and displays the result.
 	
+	@param the namespace to which the processes for the shared data.
+	@type namespace.
+	@param the set of preprocessed tweets.
+	@type Data Frame.
 	@return the summary of the sentiment analysis.
 	@rtype string.
 	"""
-	tweetsDF['score'] = [sent_score(tweetsDF['content'][i],i) for i in range(len(tweetsDF))]
+	tweetsDF['score'] = [sent_score(ns,tweetsDF['content'][i],i) for i in range(len(tweetsDF))]
 	stat = pd.DataFrame(tweetsDF.groupby(['state']).agg(['count','mean','std']))
 	results = '\n\n******** STATISTIC OF SENTIMENT SCORE BY STATE ********\n'
+	results += 'Note: Only states having at least one tweet involved in the analysis are displayed.\n'
 	results += str(stat)
+	results += '\n' + str(stat.describe())
 	results += '\n***********************************************************\n\n'
 	return  results
 
-def sent_score(text,i):
+def sent_score(ns,text,i):
 	"""
 	Compute the total sentiment score from a tweet and record for the lexicons.
 	
@@ -269,6 +270,8 @@ def sent_score(text,i):
 	from the text. Moreover, the function takes a record of the sentiment terms and 
 	the index of the tweet in tweetDF in the lexicons dictionary when appropriate.
 	
+	@param the namespace to which the processes access for the shared data.
+	@type namespace.
 	@param the normalized text content of a tweet.
 	@type string
 	@param the index in tweetDF of the tweet in question.
@@ -288,17 +291,17 @@ def sent_score(text,i):
 		space = ' '
 		seq = (split_tweet[start:start+span])
 		phrase = space.join(seq)
-		if phrase in list(sentimentDF.term[sentimentDF.numWords==3]):
+		if phrase in list(ns.sentimentDF.term[ns.sentimentDF.numWords==3]):
 			if start > 0 and split_tweet[start-1]=="not":
 				# Add the sentiment term and the index to the lexicons dictionary.
-				tweetLexicons('not'+phrase,i)
-				total -= int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,'not'+phrase,i)
+				total -= int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start-1:start+span]
 				n = len(split_tweet)
 				start -= 2
 			else:
-				tweetLexicons(phrase,i)
-				total += int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,phrase,i)
+				total += int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start:start+span]
 				n = len(split_tweet)
 				start -= 1
@@ -312,16 +315,16 @@ def sent_score(text,i):
 		space = ' '
 		seq = (split_tweet[start:start+span])
 		phrase = space.join(seq)
-		if phrase in list(sentimentDF.term[sentimentDF.numWords==2]):
+		if phrase in list(ns.sentimentDF.term[ns.sentimentDF.numWords==2]):
 			if start > 0 and split_tweet[start-1]=="not":
-				tweetLexicons('not'+phrase,i)
-				total -= int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,'not'+phrase,i)
+				total -= int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start-1:start+span]
 				n = len(split_tweet)
 				start -= 2
 			else:
-				tweetLexicons(phrase,i)
-				total += int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,phrase,i)
+				total += int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start:start+span]
 				n = len(split_tweet)
 				start -= 1
@@ -335,16 +338,16 @@ def sent_score(text,i):
 		space = ' '
 		seq = (split_tweet[start:start+span])
 		phrase = space.join(seq)
-		if phrase in list(sentimentDF.term[sentimentDF.numWords==1]):
+		if phrase in list(ns.sentimentDF.term[ns.sentimentDF.numWords==1]):
 			if start > 0 and split_tweet[start-1]=="not":
-				tweetLexicons('not'+phrase,i)
-				total -= int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,'not'+phrase,i)
+				total -= int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start-1:start+span]
 				n = len(split_tweet)
 				start -= 2
 			else:
-				tweetLexicons(phrase,i)
-				total += int(sentimentDF.score[sentimentDF.term==phrase])
+				tweetLexicons(ns,phrase,i)
+				total += int(ns.sentimentDF.score[ns.sentimentDF.term==phrase])
 				del split_tweet[start:start+span]
 				n = len(split_tweet)
 				start -= 1
@@ -352,22 +355,27 @@ def sent_score(text,i):
 			start += 1
 	return total
 	
-def tweetLexicons(lex,i):
+def tweetLexicons(ns,lex,i):
 	"""
 	Add a lexicon and the index in tweetDF of the tweet when the term
 	came from to the lexicons dictionary.
 	
+	@param the namespace to which the processes access for the shared data.
+	@type namespace.
 	@param the sentiment lexicon.
 	@type string.
 	@param the index in tweetDF of the tweet when the term came from.
 	@type int
 	"""
+	lexicons = ns.lexicons
 	if lex in lexicons.keys():
 		lexicons[lex].append(i)
 	else:
 		lexicons[lex] = [i]
-	summary_file = open(sys.argv[3], "r")
+	ns.lexicons = lexicons
+
 	
+
 ##
 # Overall summary on the sentiment analysis.
 ##
@@ -386,86 +394,126 @@ def summary(sent, tag, lex):
 	@type string.
 	"""
 	summary = open('Results.txt','w')
-	print >> summary, sent + tag + lex
+	summary.write(sent + tag + lex)
 	summary.close()
 
-def tagReport():	
+def tagReport(ns,tweetsDF):	
 	"""
 	Summarize the hashtags found in the tweets.
 	
 	Perform a statistic on the sentiment scores on the 
 	hashtags and display the sentiment lexicons associated with them.
 	
+	@param the namespace to which the processes access for the shared data.
+	@type namespace.
+	@param the set of analyzed tweets and their scores.
+	@type Data Frame.
 	@return the summary of the hashtags found in the tweets.
 	@rtype string.
 	"""
 	tagDF = pd.DataFrame()
-	tagDF['tag'] = hashtags.keys()
-	tagDF['count'] = [len(hashtags[tag]) for tag in tagDF['tag']]
-	tagDF['mean'] = [np.mean(tweetsDF.score[hashtags[tag]]) for tag in tagDF['tag']]
-	tagDF['std'] = [np.std(tweetsDF.score[hashtags[tag]]) for tag in tagDF['tag']]
-	results = '******** HASHTAG REPORT ********\n'
+	tagDF['tag'] = ns.hashtags.keys()
+	tagDF['count'] = [len(ns.hashtags[tag]) for tag in tagDF['tag']]
+	tagDF['mean'] = [np.mean(tweetsDF.score[ns.hashtags[tag]]) for tag in tagDF['tag']]
+	tagDF['std'] = [np.std(tweetsDF.score[ns.hashtags[tag]]) for tag in tagDF['tag']]
+	results = '\n******** HASHTAG REPORT ********\n'
 	results += str(tagDF)
 	results += '\n\n'
 	
 	# Create a reverse dictionary on the lexicons dictionary.
 	inv_lexicons = {}
-	for key in lexicons.keys():
-		for i in lexicons[key]:
-			if not str(i) in inv_lexicons.keys():
-				inv_lexicons[str(i)] = [key]
+	for key in ns.lexicons.keys():
+		for i in ns.lexicons[key]:
+			if not i in inv_lexicons.keys():
+				inv_lexicons[i] = [key]
 			else:
-				inv_lexicons[str(i)].append(key)
+				inv_lexicons[i].append(key)
 	
 	# Display the sentiment lexicons(if any) associated with each hashtag.
-	results += 'The following shows the hashtags found in the tweets'
-	results += ' and their associated sentiment lexicons:\n'
+	results += 'The following shows the hashtags found in the tweets,'
+	results += ' the associated sentiment lexicons, and their frequencies:\n'
 	results += 'Note: Some hashtags may not be associated with any lexicons in AFFINN-111.\n\n'
-	for tag in hashtags.keys():
+	for tag in ns.hashtags.keys():
 		results += '-- ' + tag + ' --\n'
-		sentLexicons = []
-		for i in hashtags[tag]:
-			if str(i) in inv_lexicons.keys():
-				for lex in inv_lexicons[str(i)]:
-					sentLexicons.append(lex)
-		results += ', '.join(sentLexicons)
+		sentLexicons = {}
+		for i in ns.hashtags[tag]:
+			if i in inv_lexicons.keys():
+				freq = len(inv_lexicons[i])
+				for lex in inv_lexicons[i]:
+					if not lex in sentLexicons.keys():
+						sentLexicons[lex] = 1
+					else:
+						sentLexicons[lex] += 1
+		results += str(sentLexicons)
 		results += '\n\n'
 
 	results +=  '***********************************************************\n\n'
 	return results
 	
-def lexReport():
+def lexReport(ns):
 	'''
 	Summarize the sentiment lexicons found in the tweets.
 	
+	@param the namespace to which the processes access for the shared data.
+	@type namespace.
 	@return the summary of the sentiment lexicons found in the tweets.
 	@rtype string.
 	'''
 	lexDF = pd.DataFrame()
-	lexDF['lexicon'] = lexicons.keys()
-	lexDF['count'] = [len(lexicons[lex]) for lex in lexDF['lexicon']]
-	results = '******** SENTIMENT LEXICON REPORT ********\n'
+	lexDF['lexicon'] = ns.lexicons.keys()
+	lexDF['count'] = [len(ns.lexicons[lex]) for lex in lexDF['lexicon']]
+	results = '\n******** SENTIMENT LEXICON REPORT ********\n'
 	results += str(lexDF)
 	results +=  '\n\n'
 	results +=  '***********************************************************\n'
 	return results
+
 	
 	
 def main():
+	
 	state_file = open(sys.argv[1], "r")
 	tweet_file = open(sys.argv[2],"r")
 	sent_file = open(sys.argv[3], "r")
-    
-	parseStates(state_file)
-	tidyTweets(tweet_file)
-	loadLexicons(sent_file)
-	summary(sentStat(), tagReport(), lexReport())
+	
+	# Set up for parallel-processing with shared data.
+	# All objects in the namespace are accessible by all processes.
+	# Objects in the namespace have the prefix 'ns.'.
+	manager = mp.Manager()
+	ns = manager.Namespace()
+	
+	# Create a model of the states in the U.S. represented by a collection of polygons.
+	# Have the 2-letter abbreviations of the states for keys and lists coordinates of 
+	# the vertices of the states as values. 
+	ns.statesVertices = parseStates(state_file)
+	
+	# Serve as a holder of the tweets.
+	tweetsDF = pd.DataFrame()
+	# Hashtags included in the tweets with the hashtags as keys and id's of the 
+	# originated tweets as values..
+	ns.hashtags = {}
+	# Preprocess the tweets and extract the hashtags. 
+	# Only those that were from the U.S. and had nonempty text field are cropped.
+	# The result contains the normalized text content and location(state) of the tweets.
+	tidyTweets(tweet_file,ns, tweetsDF)
+	
+
+	# Create a sentiment lexicons dictionary with the sentiment lexicons and  
+	# their respective score and length.
+	ns.sentimentDF = loadLexicons(sent_file)
+	
+
+	# Serve as a holder of the sentiment lexicons involved in the tweets.
+	# Have the sentiment lexicons as keys and indices in tweetsDF of which 
+	# include sentiment lexicons as values.
+	ns.lexicons = {}
+	
+	# Create an overall summary of the sentiment analysis. 
+	summary(sentStat(ns,tweetsDF), tagReport(ns,tweetsDF), lexReport(ns))
+	
 	state_file.close()
 	tweet_file.close()
 	sent_file.close()
-    
-
+	
 if __name__ == '__main__':
 	main()
-
-
