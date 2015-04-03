@@ -2,7 +2,7 @@
 
 ###Summary
 
-> This application performed a lexicon-based sentiment analysis on a sample of 202,000 tweets collected from Twitter API Version 1.1. Each lexicon score are on a scale of -5 to 5 with a great number indicating a more positive sentiment and vice versa. The sentiment score of a given tweet is the total of the sentiment scores of the lexicons it contains.
+> This application performed a lexicon-based sentiment analysis on a sample collected from Twitter API Version 1.1. Each lexicon score are on a scale of -5 to 5 with a great number indicating a more positive sentiment and vice versa. The sentiment score of a given tweet is the total of the sentiment scores of the lexicons it contains.
 
 > The sentiment analysis features:
 
